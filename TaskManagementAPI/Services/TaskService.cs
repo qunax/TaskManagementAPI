@@ -1,10 +1,9 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TaskManagementAPI.Data;
 
 namespace TaskManagementAPI.Services
 {
-	public class TaskService : ITaskService
+    public class TaskService : ITaskService
 	{
         private readonly TaskManagementDataContext _context;
 
@@ -34,7 +33,11 @@ namespace TaskManagementAPI.Services
 
         public async Task<Models.Task?> GetTaskByIdAsync(int taskId)
         {
-            return await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.ID == taskId);
+            var task = await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.ID == taskId);
+            if (task == null)
+                throw new InvalidOperationException("Task not found.");
+
+            return task;
         }
 
 
@@ -48,6 +51,36 @@ namespace TaskManagementAPI.Services
                 query = query.Where(t => t.IsCompleted == isCompleted.Value);
             }
             return await query.ToListAsync();
+        }
+
+
+
+        public async Task<Models.Task> UpdateTaskAsync(int taskId, Models.Task updatedTask)
+        {
+            var task = await _context.Tasks.FirstOrDefaultAsync(t => t.ID == taskId);
+            if (task == null)
+                throw new InvalidOperationException("Task not found.");
+
+            task.Title = updatedTask.Title;
+            task.Description = updatedTask.Description;
+            task.Deadline = updatedTask.Deadline;
+            task.IsCompleted = updatedTask.IsCompleted;
+
+            await _context.SaveChangesAsync();
+
+            return task;
+        }
+
+
+
+        public async Task DeleteTaskAsync(int taskId)
+        {
+            var task = await _context.Tasks.FirstOrDefaultAsync(t => t.ID == taskId);
+            if(task == null)
+                throw new InvalidOperationException("Task not found.");
+
+            _context.Remove(task);
+            await _context.SaveChangesAsync();
         }
     }
 }

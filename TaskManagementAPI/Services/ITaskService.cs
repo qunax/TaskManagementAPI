@@ -8,6 +8,10 @@ namespace TaskManagementAPI.Services
         public Task<Models.Task?> GetTaskByIdAsync(int taskId);
 
         public Task<IList<Models.Task>> GetAllTasksAsync(int userId, bool? isCompleted);
+
+        public Task<Models.Task> UpdateTaskAsync(int taskId, Models.Task updatedTask);
+
+        public Task DeleteTaskAsync(int taskId);
     }
 }
 

@@ -67,7 +67,40 @@ namespace TaskManagementAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return NotFound();
+                return NotFound(ex.Message);
+            }
+        }
+
+
+        [HttpPut("{taskId:int}")]
+        public async Task<IActionResult> UpdateTask([FromRoute]int taskId,[FromBody] Models.Task newTask)
+        {
+            try
+            {
+                var updated = await _taskService.UpdateTaskAsync(taskId, newTask);
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return NotFound(ex.Message);
+            }
+        }
+
+
+
+        [HttpDelete("{taskId:int}")]
+        public async Task<IActionResult> DeleteTask(int taskId)
+        {
+            try
+            {
+                await _taskService.DeleteTaskAsync(taskId);
+                return NoContent();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return NotFound(ex.Message);
             }
         }
     }
